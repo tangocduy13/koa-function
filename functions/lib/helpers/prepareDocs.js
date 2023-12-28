@@ -6,11 +6,15 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = prepareDocs;
 // id va data lai voi nhau
 function prepareDocs(snapshot) {
-  return snapshot.array.map(doc => {
-    return todo = {
-      id: doc.id,
-      ...doc.data()
+  console.log("run prepare");
+  let docs = [];
+  snapshot.array.forEach(element => {
+    let doc = {
+      id: element.id,
+      ...element.data()
     };
+    docs.push(doc);
   });
+  return docs;
 }
 //# sourceMappingURL=prepareDocs.js.map
