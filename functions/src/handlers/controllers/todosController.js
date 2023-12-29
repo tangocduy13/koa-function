@@ -1,9 +1,7 @@
 import * as todoRepo from "../../database/todoRepository";
-
 export async function getTodosList(ctx) {
   try {
     const todos = await todoRepo.getList();
-
     ctx.body = todos;
   } catch (error) {
     console.log(error);
@@ -29,11 +27,11 @@ export async function createOne(ctx) {
   }
 }
 
-export async function updateMany(ctx) {
+export async function update(ctx) {
   try {
     const { data } = ctx.req.body;
 
-    await todoRepo.updateMany(data);
+    await todoRepo.updateTodos(data);
     ctx.body = {
       success: true,
     };
@@ -46,11 +44,11 @@ export async function updateMany(ctx) {
   }
 }
 
-export async function removeMany(ctx) {
+export async function remove(ctx) {
   try {
     const data = ctx.req.body;
 
-    await todoRepo.removeMany(data);
+    await todoRepo.removeTodos(data);
     ctx.body = {
       success: true,
     };

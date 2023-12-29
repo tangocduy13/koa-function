@@ -17,6 +17,6 @@ const router = new _koaRouter.default({
 
 // Routes will go here
 
-router.post("/", _todoMiddleware.default, todosController.createOne).get("/", todosController.getTodosList).patch("/", todosController.updateMany).delete("/", todosController.removeMany);
+router.post("/", _todoMiddleware.default, todosController.createOne).get("/", todosController.getTodosList).patch("/", todosController.update).delete("/", todosController.remove);
 var _default = exports.default = router;
 //# sourceMappingURL=routes.js.map

@@ -12,7 +12,7 @@ const router = new Router({
 router
   .post("/", todoInputMiddleware, todosController.createOne)
   .get("/", todosController.getTodosList)
-  .patch("/", todosController.updateMany)
-  .delete("/", todosController.removeMany);
+  .patch("/", todosController.update)
+  .delete("/", todosController.remove);
 
 export default router;

@@ -5,8 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.create = create;
 exports.getList = getList;
-exports.removeMany = removeMany;
-exports.updateMany = updateMany;
+exports.removeTodos = removeTodos;
+exports.updateTodos = updateTodos;
 var _firebaseAdmin = _interopRequireDefault(require("firebase-admin"));
 var _serviceAccount = _interopRequireDefault(require("../serviceAccount.json"));
 var _prepareDocs = _interopRequireDefault(require("../helpers/prepareDocs"));
@@ -18,15 +18,7 @@ const db = _firebaseAdmin.default.firestore();
 const todoRef = db.collection("todos");
 async function getList() {
   const snapshot = await todoRef.get();
-  let todos = [];
-  snapshot.forEach(doc => {
-    let todo = {
-      id: doc.id,
-      ...doc.data()
-    };
-    todos.push(todo);
-  });
-  return todos;
+  return (0, _prepareDocs.default)(snapshot.docs);
 }
 async function create({
   title
@@ -35,15 +27,15 @@ async function create({
     title: title,
     completed: false
   });
-  const newTodoSnapshot = await res.get();
   const newTodo = {
-    id: newTodoSnapshot.id,
-    ...newTodoSnapshot.data()
-  };
+    id: res.id,
+    title: title,
+    completed: false
+  }; // ko get lại dữ liệu vừa tạo
   return newTodo;
 }
-async function updateMany(array) {
-  array.forEach(async docId => {
+async function updateTodos(array) {
+  await Promise.all(array.map(async docId => {
     await db.runTransaction(async t => {
       const doc = await t.get(todoRef.doc(docId));
       const updatedStatus = !doc.data().completed;
@@ -51,15 +43,14 @@ async function updateMany(array) {
         completed: updatedStatus
       });
     });
-  });
+  }));
 }
-async function removeMany(array) {
+async function removeTodos(array) {
   const batch = db.batch();
-  console.log(array);
-  array.forEach(docId => {
+  await Promise.all(array.map(docId => {
     let docRef = todoRef.doc(docId);
     batch.delete(docRef);
-  });
+  }));
   await batch.commit();
 }
 //# sourceMappingURL=todoRepository.js.map

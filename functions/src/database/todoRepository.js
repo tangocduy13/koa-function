@@ -10,12 +10,7 @@ const todoRef = db.collection("todos");
 
 export async function getList() {
   const snapshot = await todoRef.get();
-  let todos = [];
-  snapshot.forEach((doc) => {
-    let todo = { id: doc.id, ...doc.data() };
-    todos.push(todo);
-  });
-  return todos;
+  return prepareDocs(snapshot.docs);
 }
 
 export async function create({ title }) {
@@ -23,28 +18,31 @@ export async function create({ title }) {
     title: title,
     completed: false,
   });
-  const newTodoSnapshot = await res.get();
-  const newTodo = { id: newTodoSnapshot.id, ...newTodoSnapshot.data() };
+  const newTodo = { id: res.id, title: title, completed: false }; // ko get lại dữ liệu vừa tạo
   return newTodo;
 }
 
-export async function updateMany(array) {
-  array.forEach(async (docId) => {
-    await db.runTransaction(async (t) => {
-      const doc = await t.get(todoRef.doc(docId));
-      const updatedStatus = !doc.data().completed;
-      t.update(todoRef.doc(docId), { completed: updatedStatus });
-    });
-  });
+export async function updateTodos(array) {
+  await Promise.all(
+    array.map(async (docId) => {
+      await db.runTransaction(async (t) => {
+        const doc = await t.get(todoRef.doc(docId));
+        const updatedStatus = !doc.data().completed;
+        t.update(todoRef.doc(docId), { completed: updatedStatus });
+      });
+    })
+  );
 }
 
-export async function removeMany(array) {
+export async function removeTodos(array) {
   const batch = db.batch();
-  console.log(array);
-  array.forEach((docId) => {
-    let docRef = todoRef.doc(docId);
-    batch.delete(docRef);
-  });
+
+  await Promise.all(
+    array.map((docId) => {
+      let docRef = todoRef.doc(docId);
+      batch.delete(docRef);
+    })
+  );
 
   await batch.commit();
 }
